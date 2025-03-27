@@ -88,7 +88,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
     for (int i = 0; i < commands.size(); i++)
     {
-      std::vector<uint16_t> convertedData(commands[i].rawData.begin(), commands[i].rawData.end());
+      std::vector<uint8_t> convertedData(commands[i].rawData.begin(), commands[i].rawData.end());
       irHandler.sendCode(convertedData);
       delay(100);
     }

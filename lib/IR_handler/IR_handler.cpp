@@ -2,8 +2,11 @@
 #include "IR_device_manager.h"
 #include <IRremote.hpp>
 
+
+
 #define IR_RECEIVE_PIN 15
-#define IR_SEND_PIN 23
+#define IR_SEND_PIN 4
+
 
 bool isReceiver = false;
 String device = "";
@@ -30,7 +33,7 @@ bool IRHandler::decode()
     return false;
 }
 
-void IRHandler::sendCode(std::vector<uint16_t> rawData)
+void IRHandler::sendCode(std::vector<uint8_t> rawData)
 {
     IrSender.sendRaw(rawData.data(), rawData.size(), 38);
     Serial.print(F("raw "));
@@ -41,19 +44,36 @@ void IRHandler::sendCode(std::vector<uint16_t> rawData)
 void IRHandler::saveIRData()
 {
     IRDeviceManager irManager;
+    int rawCodeLength = IrReceiver.decodedIRData.rawDataPtr->rawlen - 1;
+
+    if (rawCodeLength < 4)
+        return;
+
+    if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT)
+    {
+        Serial.println(F("Ignore repeat"));
+        return;
+    }
+    if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_AUTO_REPEAT)
+    {
+        Serial.println(F("Ignore autorepeat"));
+        return;
+    }
+    if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_PARITY_FAILED)
+    {
+        Serial.println(F("Ignore parity error"));
+        return;
+    }
+
     if (IrReceiver.decodedIRData.protocol == UNKNOWN)
     {
         Serial.println("Unknown Protocol - Raw Data:");
-        int rawCodeLength = IrReceiver.decodedIRData.rawDataPtr->rawlen - 1;
+
         uint8_t *rawCode = new uint8_t[rawCodeLength];
         IrReceiver.compensateAndStoreIRResultInArray(rawCode);
 
         Serial.print("rawCodeLength: ");
         Serial.println(rawCodeLength);
-
-        if (rawCodeLength < 4)
-            return;
-
         Serial.println("Saving...");
         bool saveStatus = irManager.saveIRCommand(device, fuc, rawCode, rawCodeLength, 38);
         Serial.println(saveStatus ? "Save SUCCESS" : "Save ERROR");

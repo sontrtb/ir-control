@@ -3,9 +3,6 @@
 #include "IR_handler.h"
 #include "led_control.h"
 
-#define IR_RECEIVE_PIN 15
-#define IR_SEND_PIN 23
-
 LedControl ledControl;
 
 void setup() {
