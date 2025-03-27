@@ -48,9 +48,13 @@ void IRHandler::saveIRData()
         uint8_t *rawCode = new uint8_t[rawCodeLength];
         IrReceiver.compensateAndStoreIRResultInArray(rawCode);
 
+        Serial.print("rawCodeLength: ");
+        Serial.println(rawCodeLength);
+
         if (rawCodeLength < 4)
             return;
 
+        Serial.println("Saving...");
         bool saveStatus = irManager.saveIRCommand(device, fuc, rawCode, rawCodeLength, 38);
         Serial.println(saveStatus ? "Save SUCCESS" : "Save ERROR");
 

@@ -267,7 +267,7 @@ void setupWifi()
     WiFi.mode(WIFI_AP);
     uint8_t macAddr[6];
     WiFi.softAPmacAddress(macAddr);
-    String ssid_ap = "ESP32-" + String(macAddr[4], HEX) + String(macAddr[5], HEX);
+    String ssid_ap = "IR-Controler";
     ssid_ap.toUpperCase();
     WiFi.softAP(ssid_ap.c_str());
     Serial.println("Access point name:" + ssid_ap);
@@ -327,12 +327,13 @@ void checkButton()
     Serial.println("Press and hold for 5 seconds to reset to default!");
     if (millis() - lastTimePress > PUSHTIME)
     {
-      for (int i = 0; i < 100; i++)
+      // Chỉ xóa phần WiFi, không xóa toàn bộ EEPROM
+      for (int i = 0; i < 64; i++)
       {
         EEPROM.write(i, 0);
       }
       EEPROM.commit();
-      Serial.println("EEPROM memory erased!");
+      Serial.println("WiFi configuration memory erased!");
       delay(2000);
       ESP.restart();
     }
@@ -352,18 +353,26 @@ public:
 
     pinMode(ledPin, OUTPUT);
     pinMode(btnPin, INPUT_PULLUP);
-    EEPROM.begin(100);
+
+    // Khởi tạo với kích thước 512
+    EEPROM.begin(512);
+
     char ssid_temp[32], password_temp[64];
+    // Đọc từ địa chỉ 0 và 32 như trước
     EEPROM.readString(0, ssid_temp, sizeof(ssid_temp));
     EEPROM.readString(32, password_temp, sizeof(password_temp));
+
     ssid = String(ssid_temp);
     password = String(password_temp);
+
     if (ssid != "")
     {
       Serial.println("Wifi name:" + ssid);
       Serial.println("Password:" + password);
     }
+
     setupWifi(); // Thiết lập wifi
+
     if (wifiMode == 0)
       setupWebServer(); // Thiết lập webserver
   }

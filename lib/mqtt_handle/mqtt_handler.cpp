@@ -8,7 +8,7 @@
 const char *mqtt_server = "mqtt.eclipseprojects.io";
 const int mqtt_port = 1883;
 const char *client_id = "sonfe123";
-const char *mqtt_topic_subscribe = "sonfedev";
+const char *mqtt_topic_subscribe = "sonfedev_ir";
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -66,7 +66,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   if (type == "All_DEVICES")
   {
-    std::vector<IRCommand> tvCommands = irManager.findIRCommands("TV");
+    std::vector<IRCommand> tvCommands = irManager.findIRCommands(data);
     for (int i = 0; i < tvCommands.size(); i++)
     {
       Serial.println(tvCommands[i].toJson());
@@ -77,15 +77,8 @@ void callback(char *topic, byte *payload, unsigned int length)
     device = getPart(data, 0);
     fuc = getPart(data, 1);
     isReceiver = true;
-    
-    // std::vector<IRCommand> commands = irManager.findIRCommands(device, fuc);
-
-    // for (int i = 0; i < commands.size(); i++)
-    // {
-    //   std::vector<uint16_t> convertedData(commands[i].rawData.begin(), commands[i].rawData.end());
-    //   irHandler.sendCode(convertedData);
-    //   delay(100);
-    // }
+    Serial.println(device);
+    Serial.println(fuc);
   }
   else if (type == "IR_SEND")
   {
@@ -99,6 +92,10 @@ void callback(char *topic, byte *payload, unsigned int length)
       irHandler.sendCode(convertedData);
       delay(100);
     }
+  }
+  else if (type == "CLEAR_ALL_COMMANDS")
+  {
+    irManager.clearAllCommands();
   }
 }
 

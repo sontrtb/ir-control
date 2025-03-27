@@ -25,7 +25,7 @@ void loop() {
     }
 
     if (irHandler.decode() && isReceiver) {
-        Serial.println("IR signal received");
+        Serial.print("IR signal received: ");
         irHandler.saveIRData();
     }
 }

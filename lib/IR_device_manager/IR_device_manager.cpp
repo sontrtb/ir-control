@@ -1,5 +1,10 @@
 #include "IR_device_manager.h"
 
+#define WIFI_SSID_ADDR 0
+#define WIFI_PASS_ADDR 32
+#define IR_COMMANDS_ADDR 100
+#define EEPROM_SIZE 4096
+
 // Hàm khởi tạo đầy đủ cho IRCommand
 IRCommand::IRCommand(const String& device, const String& command, 
                      const std::vector<uint8_t>& data, int freq)
@@ -51,7 +56,6 @@ IRCommand IRCommand::fromJson(const String& jsonString) {
 
 // Hàm khởi tạo IRDeviceManager
 IRDeviceManager::IRDeviceManager() {
-    // Khởi tạo EEPROM với kích thước lớn hơn
     EEPROM.begin(EEPROM_SIZE);
     loadCommands();
 }
@@ -100,6 +104,7 @@ std::vector<IRCommand> IRDeviceManager::findIRCommands(
 // Xóa tất cả các lệnh
 void IRDeviceManager::clearAllCommands() {
     commands.clear();
+    Serial.println("Clear All Commands");
     saveCommandsToEEPROM();
 }
 
@@ -122,7 +127,7 @@ size_t IRDeviceManager::getCommandCount() const {
 
 // Lưu các lệnh vào EEPROM sử dụng JSON
 void IRDeviceManager::saveCommandsToEEPROM() {
-    DynamicJsonDocument doc(EEPROM_SIZE);
+    DynamicJsonDocument doc(EEPROM_SIZE - IR_COMMANDS_ADDR);
     JsonArray cmdArray = doc.createNestedArray("commands");
     
     // Chuyển đổi từng lệnh sang JSON
@@ -130,23 +135,23 @@ void IRDeviceManager::saveCommandsToEEPROM() {
         cmdArray.add(cmd.toJson());
     }
     
-    // Ghi JSON vào EEPROM
+    // Ghi JSON vào EEPROM, bắt đầu từ địa chỉ IR_COMMANDS_ADDR
     String jsonString;
     serializeJson(doc, jsonString);
     
     // Kiểm tra kích thước
-    if (jsonString.length() > EEPROM_SIZE) {
+    if (jsonString.length() > (EEPROM_SIZE - IR_COMMANDS_ADDR)) {
         Serial.println("Error: Not enough EEPROM space");
         return;
     }
     
     // Ghi từng byte vào EEPROM
     for (size_t i = 0; i < jsonString.length(); i++) {
-        EEPROM.write(i, jsonString[i]);
+        EEPROM.write(IR_COMMANDS_ADDR + i, jsonString[i]);
     }
     
     // Đánh dấu kết thúc
-    EEPROM.write(jsonString.length(), '\0');
+    EEPROM.write(IR_COMMANDS_ADDR + jsonString.length(), '\0');
     
     EEPROM.commit();
 }
@@ -155,17 +160,18 @@ void IRDeviceManager::saveCommandsToEEPROM() {
 void IRDeviceManager::loadCommands() {
     // Đọc JSON từ EEPROM
     String jsonString;
-    for (int i = 0; i < EEPROM_SIZE; i++) {
+    for (int i = IR_COMMANDS_ADDR; i < EEPROM_SIZE; i++) {
         char c = EEPROM.read(i);
         if (c == '\0') break;
         jsonString += c;
     }
     
     // Parse JSON
-    DynamicJsonDocument doc(EEPROM_SIZE);
+    DynamicJsonDocument doc(EEPROM_SIZE - IR_COMMANDS_ADDR);
     DeserializationError error = deserializeJson(doc, jsonString);
     
     if (error) {
+        Serial.println(jsonString);
         Serial.println("Failed to load commands");
         return;
     }
