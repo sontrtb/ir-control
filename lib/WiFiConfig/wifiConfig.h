@@ -6,14 +6,15 @@ WebServer webServer(80); // Khởi tạo đối tượng webServer port 80
 #include <Ticker.h>
 Ticker blinker;
 #include "mqtt_handler.h"
+#include "led_control.h"
 String ssid;
 String password;
 #define ledPin 2
 #define btnPin 0
-unsigned long lastTimePress = millis();
+
 #define PUSHTIME 5000
-int wifiMode; // 0:Chế độ cấu hình, 1:Chế độ kết nối, 2: Mất wifi
-unsigned long blinkTime = millis();
+unsigned long lastTimePress = millis();
+
 // Tạo biến chứa mã nguồn trang web HTML để hiển thị trên trình duyệt
 const char html[] PROGMEM = R"html( 
   <!DOCTYPE html>
@@ -229,45 +230,6 @@ const char html[] PROGMEM = R"html(
 </html>
 )html";
 
-void blinkLed(uint32_t t)
-{
-  if (millis() - blinkTime > t)
-  {
-    digitalWrite(ledPin, !digitalRead(ledPin));
-    blinkTime = millis();
-  }
-}
-
-void ledControl()
-{
-  if (digitalRead(btnPin) == LOW)
-  {
-    if (millis() - lastTimePress < PUSHTIME)
-    {
-      blinkLed(1000);
-    }
-    else
-    {
-      blinkLed(50);
-    }
-  }
-  else
-  {
-    if (wifiMode == 0)
-    {
-      blinkLed(50);
-    }
-    else if (wifiMode == 1)
-    {
-      blinkLed(3000);
-    }
-    else if (wifiMode == 2)
-    {
-      blinkLed(300);
-    }
-  }
-}
-
 // Chương trình xử lý sự kiện wifi
 void WiFiEvent(WiFiEvent_t event)
 {
@@ -387,9 +349,9 @@ class Config
 public:
   void begin()
   {
+
     pinMode(ledPin, OUTPUT);
     pinMode(btnPin, INPUT_PULLUP);
-    blinker.attach_ms(50, ledControl);
     EEPROM.begin(100);
     char ssid_temp[32], password_temp[64];
     EEPROM.readString(0, ssid_temp, sizeof(ssid_temp));

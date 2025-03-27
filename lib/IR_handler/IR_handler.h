@@ -18,5 +18,8 @@ private:
 };
 
 extern IRHandler irHandler;
+extern bool isReceiver;
+extern String device;
+extern String fuc;
 
 #endif

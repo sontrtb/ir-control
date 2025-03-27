@@ -5,6 +5,10 @@
 #define IR_RECEIVE_PIN 15
 #define IR_SEND_PIN 23
 
+bool isReceiver = false;
+String device = "";
+String fuc = "";
+
 IRHandler irHandler(IR_RECEIVE_PIN, IR_SEND_PIN);
 
 IRHandler::IRHandler(int receivePin, int sendPin)
@@ -47,7 +51,7 @@ void IRHandler::saveIRData()
         if (rawCodeLength < 4)
             return;
 
-        bool saveStatus = irManager.saveIRCommand("TV", "Power", rawCode, rawCodeLength, 38);
+        bool saveStatus = irManager.saveIRCommand(device, fuc, rawCode, rawCodeLength, 38);
         Serial.println(saveStatus ? "Save SUCCESS" : "Save ERROR");
 
         delete[] rawCode;
@@ -69,4 +73,5 @@ void IRHandler::saveIRData()
         if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_PARITY_FAILED)
             Serial.println("- Parity Error");
     }
+    isReceiver = false;
 }

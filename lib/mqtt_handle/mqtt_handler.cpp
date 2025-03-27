@@ -72,11 +72,26 @@ void callback(char *topic, byte *payload, unsigned int length)
       Serial.println(tvCommands[i].toJson());
     }
   }
+  else if (type == "IR_RECEIVER")
+  {
+    device = getPart(data, 0);
+    fuc = getPart(data, 1);
+    isReceiver = true;
+    
+    // std::vector<IRCommand> commands = irManager.findIRCommands(device, fuc);
+
+    // for (int i = 0; i < commands.size(); i++)
+    // {
+    //   std::vector<uint16_t> convertedData(commands[i].rawData.begin(), commands[i].rawData.end());
+    //   irHandler.sendCode(convertedData);
+    //   delay(100);
+    // }
+  }
   else if (type == "IR_SEND")
   {
-    String device = getPart(data, 0);
-    String fuc = getPart(data, 1);
-    std::vector<IRCommand> commands = irManager.findIRCommands(device, fuc);
+    String deviceSend = getPart(data, 0);
+    String fucSend = getPart(data, 1);
+    std::vector<IRCommand> commands = irManager.findIRCommands(deviceSend, fucSend);
 
     for (int i = 0; i < commands.size(); i++)
     {
