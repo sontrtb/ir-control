@@ -21,17 +21,17 @@ void LedControl::run() {
         if (millis() - lastTimePress < PUSH_TIME) {
             blinkLed(1000);
         } else {
-            blinkLed(50);
+            blinkLed(100);
         }
     } 
     else if (isReceiver)
     {
-        blinkLed(1000);
+        blinkLed(500);
     }
     else {
         switch (wifiMode) {
             case 0:
-                blinkLed(50);
+                blinkLed(100);
                 break;
             case 1:
                 blinkLed(3000);
