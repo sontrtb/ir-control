@@ -14,7 +14,6 @@
 #define DECODE_SONY
 #define DECODE_RC5
 #define DECODE_RC6
-
 #define DECODE_BOSEWAVE
 #define DECODE_LEGO_PF
 #define DECODE_MAGIQUEST
@@ -38,9 +37,7 @@
 
 // MARK_EXCESS_MICROS is subtracted from all marks and added to all spaces before decoding,
 // to compensate for the signal forming of different IR receiver modules. See also IRremote.hpp line 142.
-#define MARK_EXCESS_MICROS 20 // Adapt it to your IR receiver module. 20 is recommended for the cheap VS1838 modules.
-
-// #define DEBUG // Activate this for lots of lovely debug output from the decoders.
+#define MARK_EXCESS_MICROS 20
 
 
 class IRHandler {

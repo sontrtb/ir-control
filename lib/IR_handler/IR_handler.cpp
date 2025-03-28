@@ -1,8 +1,22 @@
+#define DECODE_DENON
+#define DECODE_JVC
+#define DECODE_KASEIKYO
+#define DECODE_PANASONIC
+#define DECODE_LG
+#define DECODE_NEC
+#define DECODE_SAMSUNG
+#define DECODE_SONY
+#define DECODE_RC5
+#define DECODE_RC6
+#define DECODE_BOSEWAVE
+#define DECODE_LEGO_PF
+#define DECODE_MAGIQUEST
+#define DECODE_WHYNTER
+#define DECODE_FAST
+
 #include "IR_handler.h"
 #include "IR_device_manager.h"
 #include <IRremote.hpp>
-
-
 
 #define IR_RECEIVE_PIN 15
 #define IR_SEND_PIN 4
